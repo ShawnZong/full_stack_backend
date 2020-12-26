@@ -1,7 +1,29 @@
 const { response, request } = require("express");
 const express = require("express");
+const morgan = require("morgan");
 const app = express();
 app.use(express.json());
+morgan.token("req-body", function (req, res) {
+  return JSON.stringify(req.body);
+});
+app.use(
+  morgan(
+    ":method :url :status :res[content-length] - :response-time ms :req-body",
+  ),
+);
+// morgan.token("req-body", (req, res) => {
+//   if (req.get === "POST") {
+//     return "test";
+//     return JSON.stringify(req.body);
+//   } else {
+//     return "";
+//   }
+// });
+// app.use(
+//   morgan(
+//     ":method :url :status :res[content-length] - :response-time ms :req-body",
+//   ),
+// );
 let persons = [
   {
     "name": "Arto Hellas",
@@ -31,9 +53,9 @@ app.get("/api/persons", (request, response) => {
 });
 app.get("/api/persons/:id", (request, response) => {
   const id = Number(request.params.id);
-  console.log(id);
+  //   console.log(id);
   const person = persons.find((tmp) => tmp.id === id);
-  console.log(person);
+  //   console.log(person);
 
   if (person) {
     response.json(person);
@@ -57,7 +79,6 @@ app.post("/api/persons", (request, response) => {
   const body = request.body;
   //   console.log(body);
 
-  console.log(body.content);
   if (!body.name && !body.phone) {
     return response.status(400).json({
       error: "no data",
