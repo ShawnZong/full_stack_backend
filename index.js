@@ -14,19 +14,6 @@ app.use(
     ":method :url :status :res[content-length] - :response-time ms :req-body",
   ),
 );
-// morgan.token("req-body", (req, res) => {
-//   if (req.get === "POST") {
-//     return "test";
-//     return JSON.stringify(req.body);
-//   } else {
-//     return "";
-//   }
-// });
-// app.use(
-//   morgan(
-//     ":method :url :status :res[content-length] - :response-time ms :req-body",
-//   ),
-// );
 let persons = [
   {
     "name": "Arto Hellas",
