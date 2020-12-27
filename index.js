@@ -2,6 +2,8 @@ const { response, request } = require("express");
 const express = require("express");
 const morgan = require("morgan");
 const app = express();
+const cors = require("cors");
+app.use(cors());
 app.use(express.json());
 morgan.token("req-body", function (req, res) {
   return JSON.stringify(req.body);
@@ -27,7 +29,7 @@ app.use(
 let persons = [
   {
     "name": "Arto Hellas",
-    "phone": "1",
+    "number": "1",
     "id": 1,
   },
   {
@@ -79,7 +81,7 @@ app.post("/api/persons", (request, response) => {
   const body = request.body;
   //   console.log(body);
 
-  if (!body.name && !body.phone) {
+  if (!body.name && !body.number) {
     return response.status(400).json({
       error: "no data",
     });
@@ -97,7 +99,7 @@ app.post("/api/persons", (request, response) => {
   persons = persons.concat(newPerson);
   response.json(newPerson);
 });
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log("running");
 });
