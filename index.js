@@ -100,7 +100,12 @@ app.put("/api/persons/:id", (request, response, next) => {
     name: body.name,
     number: body.number,
   };
-  PersonInDB.findByIdAndUpdate(request.params.id, newObj, { new: true })
+  // console.log("new obj in update backend ", newObj, " id: ", request.params.id);
+  PersonInDB.findByIdAndUpdate(
+    request.params.id,
+    newObj,
+    { new: true, runValidators: true, context: "query" },
+  )
     .then((updatedPerson) => {
       response.send(updatedPerson);
     })
@@ -144,6 +149,7 @@ const errorHandler = (error, request, response, next) => {
   if (error.name === "CastError") {
     return response.status(400).send({ error: "malformatted id" });
   } else if (error.name === "ValidationError") {
+    console.log("backend validator", error);
     return response.status(400).send({ error: error.message });
   }
 
