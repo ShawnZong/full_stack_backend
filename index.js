@@ -1,57 +1,32 @@
-require("dotenv").config();
-const { response, request } = require("express");
-const express = require("express");
-const morgan = require("morgan");
-const cors = require("cors");
-const PersonInDB = require("./models/model");
+/* eslint-disable no-console */
+require('dotenv').config();
+const express = require('express');
+const morgan = require('morgan');
+const cors = require('cors');
+const PersonInDB = require('./models/model');
 
 const app = express();
 app.use(cors());
-app.use(express.static("build"));
+app.use(express.static('build'));
 app.use(express.json());
 
-morgan.token("req-body", function (req, res) {
-  // console.log(req);
-  return JSON.stringify(req.body);
-});
+morgan.token('req-body', (req) => JSON.stringify(req.body));
 app.use(
   morgan(
-    ":method :url :status :res[content-length] - :response-time ms :req-body",
+    ':method :url :status :res[content-length] - :response-time ms :req-body',
   ),
 );
-// let persons = [
-//   {
-//     "name": "Arto Hellas",
-//     "number": "1",
-//     "id": 1,
-//   },
-//   {
-//     "name": "Ada Lovelace",
-//     "number": "39-44-5323523",
-//     "id": 2,
-//   },
-//   {
-//     "name": "Dan Abramov",
-//     "number": "12-43-234345",
-//     "id": 3,
-//   },
-//   {
-//     "name": "Mary Poppendieck",
-//     "number": "39-23-6423122",
-//     "id": 4,
-//   },
-// ];
-const generateID = () =>
-  Math.floor(Math.random() * Math.floor(Number.MAX_SAFE_INTEGER));
-app.get("/api/persons", (request, response, next) => {
-  PersonInDB.find({}).then((persons) => {
-    response.send(persons);
-    // response.json(persons.map((person) => person.toJSON()));
-  })
-    .catch((erro) => next(error));
+
+app.get('/api/persons', (request, response, next) => {
+  PersonInDB.find({})
+    .then((persons) => {
+      response.send(persons);
+      // response.json(persons.map((person) => person.toJSON()));
+    })
+    .catch((error) => next(error));
 });
-app.get("/api/persons/:id", (request, response, next) => {
-  const id = request.params.id;
+app.get('/api/persons/:id', (request, response, next) => {
+  const { id } = request.params;
   //   console.log(id);
   PersonInDB.findById(id)
     .then((person) => {
@@ -71,7 +46,7 @@ app.get("/api/persons/:id", (request, response, next) => {
   //   response.status(404).end();
   // }
 });
-app.get("/info", (request, response, next) => {
+app.get('/info', (request, response, next) => {
   PersonInDB.count({})
     .then((count) => {
       response.send(
@@ -82,10 +57,10 @@ app.get("/info", (request, response, next) => {
     .catch((error) => next(error));
 });
 
-app.delete("/api/persons/:id", (request, response, next) => {
-  const id = request.params.id;
+app.delete('/api/persons/:id', (request, response, next) => {
+  const { id } = request.params;
   PersonInDB.findByIdAndRemove(id)
-    .then((result) => {
+    .then(() => {
       // console.log("deleted", result);
       response.status(204).end();
     })
@@ -94,62 +69,61 @@ app.delete("/api/persons/:id", (request, response, next) => {
   // response.status(204).end();
 });
 
-app.put("/api/persons/:id", (request, response, next) => {
-  const body = request.body;
+app.put('/api/persons/:id', (request, response, next) => {
+  const { body } = request;
   const newObj = {
     name: body.name,
     number: body.number,
   };
   // console.log("new obj in update backend ", newObj, " id: ", request.params.id);
-  PersonInDB.findByIdAndUpdate(
-    request.params.id,
-    newObj,
-    { new: true, runValidators: true, context: "query" },
-  )
+  PersonInDB.findByIdAndUpdate(request.params.id, newObj, {
+    new: true,
+    runValidators: true,
+    context: 'query',
+  })
     .then((updatedPerson) => {
       response.send(updatedPerson);
     })
     .catch((error) => next(error));
 });
 
-app.post("/api/persons", (request, response, next) => {
-  const body = request.body;
-  //   console.log(body);
-
+// eslint-disable-next-line consistent-return
+app.post('/api/persons', (request, response, next) => {
+  const { body } = request;
   if (!body.name && !body.number) {
     return response.status(400).json({
-      error: "no data",
+      error: 'no data',
     });
   }
 
   const newPerson = new PersonInDB({
     name: body.name,
     number: body.number,
-    // id: generateID(),
   });
-  newPerson.save().then((savedPerson) => {
-    response.send(savedPerson);
-    // response.json(savedPerson.toJSON());
-  })
+  newPerson
+    .save()
+    .then((savedPerson) => {
+      response.send(savedPerson);
+    })
     .catch((error) => next(error));
-  // persons = persons.concat(newPerson);
-  // response.json(newPerson);
 });
 
 const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: "unknown endpoint" });
+  response.status(404).send({ error: 'unknown endpoint' });
 };
 
 // handler of requests with unknown endpoint
 app.use(unknownEndpoint);
 
+// eslint-disable-next-line consistent-return
 const errorHandler = (error, request, response, next) => {
   console.error(error.message);
 
-  if (error.name === "CastError") {
-    return response.status(400).send({ error: "malformatted id" });
-  } else if (error.name === "ValidationError") {
-    console.log("backend validator", error);
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' });
+  }
+  if (error.name === 'ValidationError') {
+    console.log('backend validator', error);
     return response.status(400).send({ error: error.message });
   }
 
@@ -157,7 +131,7 @@ const errorHandler = (error, request, response, next) => {
 };
 app.use(errorHandler);
 
-const PORT = process.env.PORT;
+const { PORT } = process.env;
 app.listen(PORT, () => {
   console.log(`running on PORT ${PORT}`);
 });
