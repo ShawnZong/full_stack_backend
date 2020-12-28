@@ -36,14 +36,6 @@ app.get('/api/persons/:id', (request, response, next) => {
       }
     })
     .catch((error) => next(error));
-  // const person = persons.find((tmp) => tmp.id === id);
-  // //   console.log(person);
-
-  // if (person) {
-  //   response.json(person);
-  // } else {
-  //   response.status(404).end();
-  // }
 });
 app.get('/info', (request, response, next) => {
   PersonInDB.count({})
@@ -60,12 +52,9 @@ app.delete('/api/persons/:id', (request, response, next) => {
   const { id } = request.params;
   PersonInDB.findByIdAndRemove(id)
     .then(() => {
-      // console.log("deleted", result);
       response.status(204).end();
     })
     .catch((error) => next(error));
-  // persons = persons.filter((tmp) => tmp.id !== id);
-  // response.status(204).end();
 });
 
 app.put('/api/persons/:id', (request, response, next) => {
@@ -74,7 +63,6 @@ app.put('/api/persons/:id', (request, response, next) => {
     name: body.name,
     number: body.number,
   };
-  // console.log("new obj in update backend ", newObj, " id: ", request.params.id);
   PersonInDB.findByIdAndUpdate(request.params.id, newObj, {
     new: true,
     runValidators: true,
