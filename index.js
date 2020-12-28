@@ -21,7 +21,6 @@ app.get('/api/persons', (request, response, next) => {
   PersonInDB.find({})
     .then((persons) => {
       response.send(persons);
-      // response.json(persons.map((person) => person.toJSON()));
     })
     .catch((error) => next(error));
 });
